@@ -1,0 +1,399 @@
+<?php
+/*
+ * @company: 	Symbiotic Infotech Pvt. Ltd.
+ * @copyright: 	© Symbiotic Infotech Pvt. Ltd. 2011
+ *				All rights reserved.Any redistribution or reproduction of part
+ * 				or all of the contents in any form is prohibited. You may not,
+ * 				except with express written permission, distribute or
+ * 				commercially exploit or personally use the content.
+ * 				Nor may you transmit it or store it in any other media or
+ * 				other form of electronic or physical retrieval system.
+ *
+ * @filename:	member.service.class.inc
+ * @filetype:	PHP
+ * @filedesc:   This file contains the controller for members Module
+ * 				which select the action or state for model depends
+ * 				upon the user input given to the controller.
+ * 
+ *
+ */
+
+
+class AjaxController{
+	/**
+	 * Description:
+	 * This is controller for user Module,it will decide the action  to be given to 
+	 * the model class depends upon the action parameter given to the
+	 * controller.
+	 * 
+	 * Parameters:
+	 *	null		: null
+	 * Return Value: 
+	 *	null		: null
+	*/
+	function __construct(){
+		
+		if(!mtutor_is_loggedin()) {
+			//header('location: '.APPLICATION_URL);
+		}
+		
+		global $request, $tsResponse, $library;
+		
+		//Collecting the action parameter from request.
+		$qa_model		= new QaModel();
+		$member_model	= new MemberModel();
+		$user			= mtutor_current_user();
+		$academic_tracker_model	= new AcademicTrackerModel();
+		$action = strtolower ( trim ( $request ['action'] ) );
+		
+		switch ($action) {
+			case "get_faculty_by_branch" :
+				$branch_id	= $request['branch_id'];
+				$faculty	= $qa_model->faculty_list($branch_id);
+				if($faculty) {
+					echo json_encode($faculty);
+				}
+				break;
+			case "get_faculty_workload" :
+				$assignee_id    = $request['assignee_id'];		
+				$workload       = (object)$qa_model->faculty_workload($assignee_id);
+				if($workload) {
+					echo json_encode(array('assigned' => empty($workload->assigned) ? 0 : $workload->assigned, 'inprogress' => empty($workload->in_progress) ? 0 : $workload->in_progress));
+				}
+				break;
+			case "assign_question" :
+				$question_id	= $request['question_id'];
+				$faculty_id		= $request['faculty_id'];
+				$results		= $qa_model->assign_question($question_id, $faculty_id);
+				if( $results > 0 ){
+					$args	= array(
+						'faculty_id'	=> $faculty_id,
+						'question_id'	=> $question_id
+					);
+					send_email_sms( 'assigned', $args );
+					echo $results;
+				}
+				break;
+			case "reject_question" :
+				$question_id        = $request['question_id'];
+				$rejected_reason    = $request['rejected_reason'];
+				$results            = $qa_model->reject_question($question_id, substr($rejected_reason, 0, 1000));
+				if($request['application_type'] == 'M-tutor'){
+					$question_id = $request['mtutor_id'];
+				}
+				if( $results ){
+					$rejected	= array(
+						'id'				=> rand(999,9999),
+						'question_id'		=> $question_id,
+						'answer_content'	=> 'Your Question is rejected.<br>Rejected Reason:<br>'.urlencode($rejected_reason),
+						'author_id'			=> 0,
+						'post_date'			=> date('Y-m-d H:i:s'),
+						'post_modified'		=> '',
+						'ans_attachment'	=> '',
+						'post_mime_type'	=> ''
+					);
+					send_answer($question_id, $rejected, 'rejected');
+					echo $results;
+				}
+				break;
+			case "force_reassign" :
+				$question_id	= $request['question_id'];		
+				$message		= $qa_model->force_reassign( $question_id );
+				if($message) {
+					echo json_encode(array( 'message' => $message));
+				}
+				break;
+			case "faculty_respond" :
+				$question_id    = $request['question_id'];
+				$respond_time   = $request['respond_time'];
+				$final          = $qa_model->answerRespond( $question_id, $respond_time );
+				if( $final > 0 ){
+					$args	= array(
+						'faculty_id'	=> $user->id,
+						'question_id'	=> $question_id,
+						'respond_time'	=> $respond_time
+					);
+					send_email_sms( 'respond_in', $args );
+					echo json_encode( $final);
+				}
+				break;
+			case "delete_answer_attachment" :
+				$ans_id				= $request['ans_id'];
+				$ans_attach_file	= $request['file'];
+				$message			= $qa_model->delete_answer_attachment( $ans_id );
+				if($message) {
+					echo json_encode(array( 'message' => $message));
+				}
+				break;
+			case "approve_answer" :
+				$question_id	= $request['question_id'];
+				$answer_id		= $request['answer_id'];
+				$result			= $qa_model->approve_answer($question_id);
+				if($result) {
+					$answer_row		= (object)$qa_model->get_answer_by_id($answer_id);
+					$answer_row->answer_content = urlencode($answer_row->answer_content);
+					console ( LOG_LEVEL_TRACE, 'Sending answer for Question ID :'.$question_id);
+					if($request['application_type'] == 'M-tutor'){
+						console ( LOG_LEVEL_TRACE, 'Mtutor ID :'.$request['mtutor_id']);
+						$send_ans = send_answer($request['mtutor_id'], $answer_row->answer_content, $answer_row->ans_attachment);
+					}
+					console ( LOG_LEVEL_TRACE, 'Answer sent successfully for Question ID :'.$question_id);
+					console ( LOG_LEVEL_TRACE, 'Send Answer API response :'.$send_ans);
+					echo json_encode( $result );
+				}
+				break;
+			case "reject_answer" :
+				$answer_id          = $request['answer_id'];
+				$rejected_reason    = $request['rejected_reason'];
+				$question_id        = $request['question_id'];
+				$result             = $qa_model->reject_answer($answer_id, $question_id, substr($rejected_reason, 0, 1000));
+				if( $result ){			
+					$args	= array(
+						'question_id'	=> $question_id,
+						'reason'		=> $rejected_reason,
+						'answer_id'		=> $answer_id
+					);
+					send_email_sms( 'answer_rejected', $args );
+					echo json_encode( $result);
+				}
+				break;
+			case "get_reject_answer" :
+				$output = '';
+				$question_id        = $request['question_id'];
+				$results            = $qa_model->get_rejected_answers($question_id, '');
+				if( $results ) {
+					foreach($results as $result){
+						$result = (object)$result;
+						$output = '<div class="rej-qa-content">';
+						$output .= '<div class="author_id"> Answer from <b>'.$result->professor_first_name.'</b></div>';
+						$output .= '<div class="answer_content">'.stripslashes($result->answer_content).'</div>';
+						$output .= '<div class="rejected_reason"> Reason : '.stripslashes($result->ans_rejected_reason).'</div>';
+						$output .= '<div class="rejected_reason"> Time : '.date("d-m-y, h:i a", strtotime($result->ans_rejected_time)).'</div></div>';
+						echo $output;
+					}
+				}
+				break;
+			case "chatroom_action" :
+				$chatroom_id	= $request['chatroom_id'];
+				$action			= $request['chatroom_action'];
+				$status			= $qa_model->chatroom_action($chatroom_id, $action);
+				echo json_encode(array('status' => $status));
+				break;
+			case "approve_similar_qa" :
+				$answer_id		= $request['answer_id'];
+				$question_id	= $request['question_id'];
+				$result			= $qa_model->approve_similar_qa($answer_id, $question_id);
+				if($result) {
+					$answer_row = (object)$qa_model->get_answer_by_id($result);
+					$answer_row->answer_content	= urlencode($answer_row->answer_content);
+					/* send_answer($question_id, $answer_row->answer_content, $answer_row->ans_attachment); */
+					if($request['mtutor_id']!=""){
+						console ( LOG_LEVEL_TRACE, 'Mtutor ID :'.$request['mtutor_id']);
+						$send_ans = send_answer($request['mtutor_id'], $answer_row->answer_content, $answer_row->ans_attachment);
+					}
+					
+					
+					echo json_encode($result);
+				}
+				break;
+			case "get_state" :
+				$country_id		= $request['country_id'];
+				$result			= $member_model->get_state('', $country_id);
+				if($result)
+					echo json_encode($result);
+				else
+					echo json_encode(array('status'=> false));
+				break;
+			case "get_university" :
+				$country_id		= $request['country_id'];
+				$result			= $member_model->get_university('', $country_id);
+				if($result)
+					echo json_encode($result);
+				else
+					echo json_encode(array('status'=> false));
+				break;
+			case "get_college" :
+				$university_id	= $request['university_id'];
+				$result			= $member_model->get_college('', $university_id);
+				if($result)
+					echo json_encode($result);
+				else
+					echo json_encode(array('status'=> false));
+				break;
+			case "register_submit" :
+				$validate = $this->sme_form_validate($request);
+				if($validate['status'] != false) {
+					$check_user	= $member_model->check_user($request['email'], $request['mobile_no']);
+					if($check_user === 'email') {
+						echo json_encode(array('status'=> false, 'key' => 'Given Email ID already exists.', 'type' => 'custom'));
+					} elseif ($check_user === 'mobile') {
+						echo json_encode(array('status'=> false, 'key' => 'Given Mobile Number already exists.', 'type' => 'custom'));
+					} else {
+						$args	= $request;
+						$args['type']	= 'SME';
+						$member_model->create_user($args);
+						echo json_encode(array('status'=> true, 'message' => 'Success'));
+					}
+				} else {
+					echo json_encode(array('status'=> false, 'key' => $validate['key'], 'type' => $validate['type']));
+				}
+				break;
+			case "periodic_check" :
+				if($user->type == 'MODERATOR') {
+					$data	= $qa_model->check_notifications($user->type);
+					echo json_encode(
+						array(
+							'type'		=> $user->type,
+							'q_href'	=> 'gateway/action?application=qa&action=dashboard&filter=not_assigned',
+							'a_href'	=> 'gateway/action?application=qa&action=dashboard&filter=pending',
+							'q_title'	=> 'You have '.$data['new_ques'].' new question(s)',
+							'a_title'	=> 'You have '.$data['new_ans'].' new answer(s)',
+							'data'		=> $data
+						)
+					);
+				} elseif($user->type == 'SME') {
+					$data	= $qa_model->check_notifications($user->type, $user->id);
+					echo json_encode(
+						array(
+							'type'	=> $user->type,
+							'href'	=> 'gateway/action?application=qa&action=dashboard&filter=assigned',
+							'title'	=> 'You have assigned '.$data['new_ques'].' new question(s)',
+							'data'	=> $data
+						)
+					);
+				} else {
+					echo json_encode(false);
+				}
+			break;
+				
+			case "save_academic_tracker" :
+
+				$validate = $this->academic_tracker_form_validate($request);
+				$attachment_file 					= $this->upload_file($_FILES);
+			  if($validate['status'] != false && ($attachment_file !="SIZE" || $attachment_file !="TYPE")) {
+				$check_user	= $academic_tracker_model->check_existing_students($request['email'], $request['ph_no']);
+					if($check_user == 0){
+						$args							= $request;
+						$args['mobile_no'] 		= $request['ph_no'];
+						$args['type']					= 'new_user';
+						$request['student_id'] 	= $academic_tracker_model->create_user_academic_tracker($args);
+						$request['ques_status']= $args['type'];
+						
+					}
+						$request['student_id']	= ($check_user == 0) ? $request['student_id'] : $check_user;
+						$request['attachment_file']	= $attachment_file ;
+						$result	= $academic_tracker_model->save_academic_tracker_data($request);
+					echo 'sss'.$result;
+					if($result)
+						echo json_encode(array('status'=> true, 'message' => 'Success'));
+					
+				
+				} else {
+					
+					 if($attachment_file == "SIZE" || $attachment_file == "TYPE") { echo json_encode(array('status'=> false, 'key' => "Attachment File wrong", 'type' => 'custom' )); }else {echo   json_encode(array('status'=> false, 'key' => $validate['key'], 'type' => $validate['type']));}
+				}
+				
+				break;
+				
+		}
+	}
+	
+	function sme_form_validate($field) {
+		
+		$return = array('status' => false, 'type' => 'text');
+		
+		if(empty($field['first_name'])) {
+			$return['key'] = 'First Name';
+		} elseif(empty($field['email'])) {
+			$return['key'] = 'Email ID';
+		} elseif(empty($field['mobile_no'])) {
+			$return['key'] = 'Mobile Number';
+		} elseif(empty($field['password'])) {
+			$return['key'] = 'Password';
+		} elseif(empty($field['conf_password'])) {
+			$return['key'] = 'Confirm Password';
+		} elseif(empty($field['gender'])) {
+			$return['key'] = 'Gender';
+			$return['type'] = 'select';
+		} elseif(empty($field['branch_id'])) {
+			$return['key'] = 'Branch';
+			$return['type'] = 'select';
+		} elseif($field['password'] != $field['conf_password']) {
+			$return['key'] = 'Password Mismatch';
+			$return['type'] = 'mismatch';
+		} elseif((strlen($field['password']) < 4) || (strlen($field['password']) > 16)) {
+			$return['key'] = 'Password length must be min 4 and max 16 characters.';
+			$return['type'] = 'custom';
+		} elseif((strlen($field['mobile_no']) != 10) || !is_numeric($field['mobile_no'])) {
+			$return['key'] = 'Enter valid 10 digit Mobile Number.';
+			$return['type'] = 'custom';
+		} elseif(!filter_var($field['email'], FILTER_VALIDATE_EMAIL)) {
+			$return['key'] = 'Invalid Email ID.';
+			$return['type'] = 'custom';
+		} else {
+			$return['status'] = true;
+		}
+		return $return;
+	}
+	
+	function academic_tracker_form_validate($field){
+		
+		$return = array('status' => false, 'type' => 'text');
+		
+		if(empty($field['first_name'])) {
+			$return['key'] = 'First Name';
+		}elseif(empty($field['gender'])) {
+			$return['key'] = 'Gender';
+		}elseif(empty($field['ph_no'])) {
+			$return['key'] = 'Phone Number';
+		}elseif(empty($field['email'])) {
+			$return['key'] = 'Email ID';
+		}elseif(empty($field['issue'])) {
+			$return['key'] = 'Question';
+		}elseif (ctype_alpha(str_replace(' ', '', $field['first_name'])) === false) {
+		$return['key'] = 'First Name Should Contain Character Only .';
+		$return['type'] = 'custom';
+		}elseif(!filter_var($field['email'], FILTER_VALIDATE_EMAIL)) {
+			$return['key'] = 'Invalid Email ID.';
+			$return['type'] = 'custom';
+		} elseif((strlen($field['ph_no']) != 10) || !is_numeric($field['ph_no'])) {
+			$return['key'] = 'Enter valid 10 digit Mobile Number.';
+			$return['type'] = 'custom';
+		} else {
+			$return['status'] = true;
+		}
+		return $return;
+		}
+		
+	function upload_file($file = ''){		
+			$error 	 			= "";
+			$userfilename 	= '';
+		if(isset($file['ques_upload']['name']) && !empty($file['ques_upload']['name'])) {
+			$upload_path	= STORAGE_DIR.'uploads/question_attachment/';
+			$file_name  		= $file['ques_upload']['name'];
+			$file_size  		= $file['ques_upload']['size'];
+			$file_tmp  		= $file['ques_upload']['tmp_name'];
+			$file_type  		= $file['ques_upload']['type'];
+			$expensions		= array('application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/gif');
+			$file_ext  			= strtolower(end(explode('.', $file_name)));
+			$unique_file_name 	= 'question_' . rand(10000, 99999) . '_' . time() . '.' . $file_ext;
+if( !in_array($file_type, $expensions)=== false ) {
+	if( $file_size <= 5242880 ) {
+							if (move_uploaded_file($_FILES['ques_upload']['tmp_name'], $upload_path . $unique_file_name)) {
+				$userfilename = $unique_file_name;
+				}else {
+				$userfilename = '';
+			}
+		}else {
+							$error = "SIZE";
+	}		
+			
+		}else{
+	$error = "TYPE";
+	}
+return isset($error) ? $error : $userfilename;
+	}
+	
+}
+}
+?>

@@ -1,0 +1,600 @@
+<?php
+/*
+ * @company: 	Symbiotic Infotech Pvt. Ltd.
+ * @copyright: 	© Symbiotic Infotech Pvt. Ltd. 2011
+ *				All rights reserved.Any redistribution or reproduction of part
+ * 				or all of the contents in any form is prohibited. You may not,
+ * 				except with express written permission, distribute or
+ * 				commercially exploit or personally use the content.
+ * 				Nor may you transmit it or store it in any other media or
+ * 				other form of electronic or physical retrieval system.
+ *
+ * @filename:	member.class.inc
+ * @filetype:	PHP
+ * @filedesc:   This file contains the model for user module
+ * 				and contains all the business logic for user module.
+ *
+ *
+ */
+
+
+class QaModel {
+
+	private $_insertValidataionRules;
+	/**
+	 * Description:
+	 * constructor for user class will intialize the validition rules for insert operation.
+	 *
+	 * Parameters:
+	 * null		: null
+	 * Return Value:
+	 * null		: null
+	 */
+	public function __construct() {
+		
+		global $db,$request;
+		
+		$this->_insertValidataionRules = array (
+			'username'	=> array (
+				'type'		=> 'string',
+				'required'	=> true,
+				'striptags'	=> true,
+				'length'	=> 255
+			)
+		);
+	}
+
+	public function validateUser() {
+		global $db,$request;
+
+		$query = "SELECT * FROM mtsoc_auth_users WHERE username='".$request['username']."' AND PASSWORD='".MD5($request['password'])."'";
+		$result = $db['master']->getOneRow($query);
+		if ($result && count($result) > 0)
+			return $result;
+		else
+			return false;
+	}
+	
+	public function get_user($user_id = '', $type = '') {
+		
+		global $db,$request;
+
+		$query = "SELECT * FROM mtsoc_auth_users";
+		if($user_id != '') {
+			$query .= " WHERE id = '" . $user_id . "'";
+			$result = $db['master']->getOneRow($query);
+		} else if($type != '') {
+			$query .= " WHERE type = '" . $type . "'";
+			$result = $db['master']->getResults($query);
+		} else {
+			$result = $db['master']->getResults($query);
+		}
+		
+		if ($result && count($result) > 0)
+			return (object)$result;
+		else
+			return false;
+	}
+	
+	public function addUser($beanObj) {
+		global $db, $request,$log;
+		//Chekcing if the username is already present in database or not.
+
+		$where = "username='" . $request ['username'] . "' and email='" . $request ['email'] . "' and mobile_no='" . $request ['mobile_no'] . "'";
+		$selectQuery = DBQueryConstruct::selectQuery ( $beanObj, $where );
+		if ($selectQuery) {
+			if ($results = $db ['master']->getResults ( $selectQuery )) {
+				//if the user is already in database.
+				return 'User already present.';
+			} else {
+				$request['password'] = md5($request['password']);
+				//if the user is not in database.
+				$beanObj = new mtsoc_auth_users ( $request );
+				if ($this->validateQuery ( $beanObj, $this->_insertValidataionRules ) === true) {
+					$insQuery = DBQueryConstruct::insertQuery ( $beanObj );
+					if ($insQuery) {
+						if ($db ['master']->query ( $insQuery )) {
+							return true;
+						} else {
+							return 'Unable to insert';
+						}
+					} else {
+						return 'Unable to insert';
+					}
+				} else {
+					return 'Invalid Dataa';
+				}
+			}
+		} else {
+			return 'not able form select query.';
+		}
+	}
+	
+	public function get_all_qa($id='', $user_id='', $filter='') {
+		
+		global $db,$request;
+		
+		/* $query	= 'SELECT COUNT(ans.id) AS anscount, `ques`.`id`, `ques`.`question_title`, `ques`.`question_content`, `ques`.`author_id` AS `stu_id`, `ques`.`post_date` AS `question_post_date`, `ques`.`assigned_time`, `ques`.`modified_time`, `ques`.`assigned_to`, `ques`.`ques_status`, `ques`.`rejected_reason` AS `ques_rejected_reason`, ques.rejected_time AS ques_rejected_time, `ques`.`respond_in` AS `ques_respond_in`, `ques`.`post_mime_type` AS `ques_post_mime_type`, `ques`.`ques_attachment`, `ques`.`source`, `ans`.`id` AS `ans_id`, `ans`.`question_id`, `ans`.`answer_content`, `ans`.`author_id` AS `faculty_id`, ans.post_date AS ans_post_date, `ans`.`post_modified` AS `ans_post_modified`, `ans`.`ans_attachment`, `ans`.`post_mime_type` AS `ans_post_mime_type`, `mtuser`.`username` AS `professor`, U.`name` AS `student`, U.`name` AS `student_first_name`, "" AS `student_last_name`, `mtuser`.`first_name` AS `professor_first_name`, `mtuser`.`last_name` AS `professor_last_name`, `mtuser`.`avatar` AS `professor_avatar`, "" AS `stu_avatar`, `mtbranch`.`branch_name` AS `professor_branch_name`, S.`subject_name` AS `subject_name`, `ques`.`topic` AS `topic_name`, `ans_rej`.`rejected_reason` AS `ans_rejected_reason`
+FROM `mtsoc_question` `ques`
+  LEFT JOIN `mtsoc_answer` `ans`
+    ON `ques`.`id` = `ans`.`question_id`
+  LEFT JOIN `mtsoc_answer_reject` `ans_rej`
+    ON `ques`.`id` = `ans_rej`.`question_id`
+  LEFT JOIN `mtsoc_auth_users` `mtuser`
+    ON `mtuser`.`id` = `ques`.`assigned_to`
+  LEFT JOIN users U
+	ON U.user_id = ques.author_id
+  LEFT JOIN `mtsoc_branch` `mtbranch`
+    ON `mtbranch`.`branch_id` = `mtuser`.`branch_id`
+	LEFT JOIN subject S
+	ON S.uni_subject_id = ques.subject_id'; */
+	
+	
+	$query	= 'SELECT COUNT(ans.id) AS anscount, `ques`.`id`,`ques`.`mtutor_id`, `ques`.`question_title`, `ques`.`question_content`, `ques`.`author_id` AS `stu_id`, `ques`.`post_date` AS `question_post_date`, `ques`.`assigned_time`, `ques`.`modified_time`, `ques`.`assigned_to`, `ques`.`ques_status`, `ques`.`rejected_reason` AS `ques_rejected_reason`, ques.rejected_time AS ques_rejected_time, `ques`.`respond_in` AS `ques_respond_in`, `ques`.`post_mime_type` AS `ques_post_mime_type`, `ques`.`ques_attachment`, `ques`.`source`, `ans`.`id` AS `ans_id`, `ans`.`question_id`, `ans`.`answer_content`, `ans`.`author_id` AS `faculty_id`, ans.post_date AS ans_post_date, `ans`.`post_modified` AS `ans_post_modified`, `ans`.`ans_attachment`, `ans`.`post_mime_type` AS `ans_post_mime_type`, `mtuser`.`username` AS `professor`, `mtuser`.`first_name` AS `professor_first_name`, `mtuser`.`last_name` AS `professor_last_name`, `mtuser`.`avatar` AS `professor_avatar`, "" AS `stu_avatar`, `mtbranch`.`branch_name` AS `professor_branch_name`, `ques`.`topic` AS `topic_name`, `ans_rej`.`rejected_reason` AS `ans_rejected_reason`,ques.subject_name,ques.application_type,ques.author_id
+FROM `mtsoc_question` `ques`
+  LEFT JOIN `mtsoc_answer` `ans`
+    ON `ques`.`id` = `ans`.`question_id`
+  LEFT JOIN `mtsoc_answer_reject` `ans_rej`
+    ON `ques`.`id` = `ans_rej`.`question_id`
+  LEFT JOIN `mtsoc_auth_users` `mtuser`
+    ON `mtuser`.`id` = `ques`.`assigned_to`
+  LEFT JOIN `mtsoc_branch` `mtbranch`
+    ON `mtbranch`.`branch_id` = `mtuser`.`branch_id`';
+	
+	
+	
+	
+		
+		if($id != '') {
+			$query	.= ' WHERE ques.id = ' . "'" . $id . "'" ;
+		}
+		if($user_id != '') {
+			$query	.= ' WHERE ques.assigned_to = ' . "'" . $user_id . "'" ;
+		}
+		if( $filter != '' && $filter != 'not_assigned'){
+			if($filter == 'ans_rejected'){
+				$query	.= ' WHERE ans_rej.ans_status = ' . "'" . $filter . "'" ;
+			}else{
+				$query	.= ' WHERE ques.ques_status = ' . "'" . $filter . "'" ;
+			}
+		}else if( $filter == 'not_assigned' ){
+			$query	.= ' WHERE ques.ques_status = ' . '""' ;
+		}
+		
+		$query		.= ' GROUP BY `ques`.`id` ORDER BY `ques`.`post_date` DESC LIMIT 250';
+		
+	$pageno 		= isset($request['pageno']) ? $request['pageno'] : 1;
+	$page_limit 	= isset($request['page_limit']) ? $request['page_limit'] : 10;	
+	
+	// Pagination support
+	if($page_limit > 100) {
+		$page_limit = 100;
+	}	
+	$start_limit 	= $page_limit * ($pageno - 1);
+	
+	//$query .= " LIMIT $start_limit,$page_limit";
+	
+		$position	= strpos($query, 'WHERE');
+		if ($position !== false) {
+			$query = substr($query, 0, $position + 1) . str_replace('WHERE', 'AND', substr($query, $position + 1));
+		}
+		$result	= $db['master']->getResults($query);
+		return $result;
+	}
+	
+	
+	public function getBranchList() {
+		global $db,$request;
+
+		$query	= "SELECT branch_id, branch_name FROM mtsoc_branch";
+		$result	= $db['master']->getResults($query);
+		return $result;
+	}
+	
+	public function faculty_list($branch_id) {
+		global $db,$request;
+		
+		$query	= "SELECT `musers`.`id`, `musers`.`first_name`, `musers`.`last_name` FROM `mtsoc_auth_users` `musers` JOIN `mtsoc_branch` `mb` ON `mb`.`branch_id` = `musers`.`branch_id`";
+		if( $branch_id != 'all_branches' ) {
+			$query .= ' WHERE mb.branch_id = ' . "'" . $branch_id . "'";
+		}
+		$result	= $db['master']->getResults($query);
+		return $result;
+	}
+	
+	public function faculty_workload($author_id) {
+		global $db,$request;
+		
+		$query	= "SELECT SUM(IF(ques_status = 'assigned', 1, 0)) AS assigned, SUM( CASE WHEN ques_status = 'in_progress' THEN 1 WHEN ques_status = 'respond_in' THEN 1 WHEN ques_status = 'draft' THEN 1 ELSE 0 END ) AS in_progress FROM mtsoc_question WHERE assigned_to = '$author_id'";
+		$result	= $db['master']->getOneRow($query);
+		return $result;
+	}
+	
+	public function delete_answer( $question_id ) {
+		global $db,$request;
+
+		$delete_query	= "DELETE FROM mtsoc_answer WHERE question_id = $question_id";
+		$delete_result	= $db['master']->query($delete_query);
+		return $db['master']->affectedRows();
+	}
+	
+	public function assign_question( $question_id, $faculty_id ) {
+		global $db,$request;
+		
+		$query	= "SELECT author_id FROM mtsoc_answer WHERE question_id = '$question_id'";
+		$result	= $db['master']->getOneRow($query);
+		if($result['author_id'] != $faculty_id) {
+			$delete_query	= "DELETE FROM mtsoc_answer WHERE question_id = $question_id";
+			$delete_result	= $db['master']->query($delete_query);
+		}
+		$update_query	= "UPDATE mtsoc_question SET assigned_to = $faculty_id, ques_status = 'assigned', assigned_time = '" . date('Y-m-d H:i:s') . "' WHERE id = $question_id";
+		$update_result	= $db['master']->query($update_query);
+		return $db['master']->affectedRows();
+	}
+	
+	public function reject_question( $question_id, $rejected_reason ){
+		global $db,$request;
+		
+		$update_query	= "UPDATE mtsoc_question SET ques_status = 'rejected', rejected_reason = '$rejected_reason', rejected_time = '" . date('Y-m-d H:i:s') . "' WHERE id = $question_id";
+		$update_result	= $db['master']->query($update_query);
+		return $db['master']->affectedRows();
+	}
+	
+	function force_reassign($question_id){
+		global $db,$request;
+		
+		$update_query	= "UPDATE mtsoc_question SET assigned_time = '0000-00-00 00:00:00', assigned_to = '0', ques_status = '', respond_in = '' WHERE id = $question_id";
+		$update_result	= $db['master']->query($update_query);
+		return $db['master']->affectedRows();
+	}
+	
+	public function answerRespond( $question_id, $respond_time ) {
+		global $db,$request;
+		
+		$update_query	= "UPDATE mtsoc_question SET ques_status = 'respond_in', respond_in = '$respond_time', modified_time = '" . date('Y-m-d H:i:s') . "' WHERE id = $question_id";
+		$update_result	= $db['master']->query($update_query);
+		return $db['master']->affectedRows();
+	}
+	
+	public function get_qa($id) {
+		global $db,$request;
+		
+		$query	= "SELECT COUNT(ans.id) AS anscount,ans.ans_attachment    AS attach,ques.ques_attachment  AS qattach,ques.ques_status      AS question_status,ques.id,
+  ques.assigned_to      AS assigned_to,ques.assigned_time    AS assigned_time,ques.modified_time    AS modified_time,ques.respond_in       AS respond_in,ans.id                AS ans_id,DATE(ques.post_date)     question_post_date,ans.post_date         AS ans_post_date,ques.question_title,ques.question_content,ans.answer_content,ans.author_id         AS faculty_id,mtuser.username       AS professor,ques.author_id        AS stu_id,mtuser.first_name     AS professor_first_name,mtuser.last_name      AS professor_last_name,mtuser.avatar         AS professor_avatar,mtbranch.branch_name  AS professor_branch_name
+		FROM mtsoc_question ques
+		LEFT JOIN mtsoc_answer ans ON ques.id = ans.question_id
+		LEFT JOIN mtsoc_auth_users mtuser ON mtuser.id = ans.author_id
+		LEFT JOIN mtsoc_branch mtbranch ON mtbranch.branch_id = mtuser.branch_id
+		WHERE ques.id = $id";
+		$result	= $db['master']->getOneRow($query);
+		return $result;
+	}
+	
+	public function update_question_status( $question_id, $answer_post_type ){
+		global $db,$request;
+		
+		$update_query	= "UPDATE mtsoc_question SET ques_status = '$answer_post_type', modified_time = '" . date('Y-m-d H:i:s') . "' WHERE id = $question_id";
+		$update_result	= $db['master']->query($update_query);
+		return $db['master']->affectedRows();
+	}
+	
+	public function asked_question( $question_id ) {
+		global $db,$request;
+		
+		$query	= "SELECT ques.id, ques.question_title, ques.question_content, ques.author_id, ques.ques_attachment, mtuser.avatar as student_avatar, mtuser.first_name as student_first_name, mtuser.last_name as student_last_name, ques.assigned_to as faculty_id, ques.post_date as question_date FROM `mtsoc_question` `ques`  LEFT JOIN `mtsoc_users` `mtuser` ON `mtuser`.`id` = `ques`.`author_id` LEFT JOIN `mtsoc_auth_users` `mtuser2` ON `mtuser2`.`id` = `ques`.`assigned_to` WHERE `ques`.`id` = $question_id";
+		$result	= $db['master']->getOneRow($query);
+		return $result;
+	}
+	
+	public function post_answer( $question_id, $faculty_id, $ans_data, $answer_post_type ){
+		global $db,$request;
+		
+		if( $this->hasQuestionAnswered( $question_id ) == 0 ){
+			$query = "INSERT INTO mtsoc_answer (question_id, author_id, answer_content, post_date) VALUES ('". $question_id ."', '". $faculty_id ."', '". ucfirst(trim($ans_data)) ."', '". date('Y-m-d H:i:s') ."')";
+			//echo $ans_data;
+			//exit;
+			$result = $db['master']->query($query);
+			
+			if( $db['master']->getLastID() > 0 ){
+				$this->update_question_status( $question_id, $answer_post_type );
+			}
+			return $db['master']->getLastID();
+		}else{
+			$update_query	= "UPDATE mtsoc_answer SET answer_content = '". ucfirst(trim($ans_data)) ."', post_date = '" . date('Y-m-d H:i:s') . "' WHERE question_id = $question_id AND author_id = $faculty_id";
+			$update_result	= $db['master']->query($update_query);
+			$this->update_question_status( $question_id, $answer_post_type );
+			return $db['master']->affectedRows();
+		}
+	}
+	
+	public function hasQuestionAnswered( $question_id ){
+		global $db,$request;
+		
+		$query	= "SELECT * FROM mtsoc_answer WHERE question_id = '$question_id'";
+		$result	= $db['master']->getResults($query);
+		return count($result);
+	}
+	
+	public function update_answer_attachment( $question_id, $faculty_id, $mime_type, $ans_attachment ){
+		global $db,$request;
+		
+		$update_query	= "UPDATE mtsoc_answer SET post_mime_type = '". $mime_type ."', ans_attachment = '" . $ans_attachment . "' WHERE question_id = $question_id AND author_id = $faculty_id";
+		$update_result	= $db['master']->query($update_query);
+		return $db['master']->affectedRows();
+	}
+	
+	public function delete_answer_attachment(  $ans_id ){
+		global $db,$request;
+		
+		$update_query	= "UPDATE mtsoc_answer SET post_mime_type = '', ans_attachment = '' WHERE id = $ans_id";
+		return $db['master']->query($update_query);
+	}
+	
+	public function approve_answer($ques_id){
+		global $db,$request;
+		
+		$update_query	= "UPDATE mtsoc_question SET ques_status = 'published' WHERE id = $ques_id";
+		$update_result	= $db['master']->query($update_query);
+		return $db['master']->affectedRows();
+	}
+	
+	public function get_answer_by_id($ans_id) {
+		global $db,$request;
+		
+		$query	= "SELECT * FROM mtsoc_answer WHERE id = '$ans_id'";
+		$result	= $db['master']->getOneRow($query);
+		return $result;
+	}
+	
+	public function get_answer_by_qid($ques_id) {
+		global $db,$request;
+		
+		$query	= "SELECT * FROM mtsoc_answer WHERE question_id = '$ques_id'";
+		$result	= $db['master']->getOneRow($query);
+		return $result;
+	}
+	
+	public function reject_answer($ans_id, $ques_id, $rejected_reason) {
+		global $db,$request;
+		
+		$query	= "SELECT * FROM mtsoc_answer WHERE id = '$ans_id'";
+		$result	= (object)$db['master']->getOneRow($query);
+		
+		$insert_query = "INSERT INTO mtsoc_answer_reject (question_id, answer_id, answer_content, author_id, post_date, ans_attachment, ans_status, rejected_reason, rejected_time) VALUES ('". $result->question_id ."', '". $result->id ."', '". str_replace("'","\'",$result->answer_content) ."', '". $result->author_id ."', '". $result->post_date ."', '". $result->ans_attachment ."', 'ans_rejected', '". str_replace("'","\'",$rejected_reason) ."', '". date('Y-m-d H:i:s') ."')";
+		$inser_result = $db['master']->query($insert_query);
+	
+		$update_query	= "UPDATE mtsoc_question SET ques_status = '', assigned_to = '0', assigned_time = '0000-00-00 00:00:00', modified_time = '0000-00-00 00:00:00' WHERE id = $ques_id";
+		$update_result	= $db['master']->query($update_query);
+		
+		$delete_query = "DELETE FROM mtsoc_answer WHERE id = '". $ans_id ."'";
+		$delete_result	= $db['master']->query($delete_query);
+		return $db['master']->affectedRows();
+	}
+	
+	public function get_rejected_answers($ques_id='', $author_id='') {
+		global $db,$request;
+		
+		$query	= 'SELECT ques.ques_attachment as qattach, ques.id,' . 'ques.post_date as question_post_date, ques.question_title,ques.ques_status, ' . 'ques.question_content, mtuser2.username as student,mtuser2.first_name as student_first_name,mtuser2.last_name as student_last_name, ' . 'ques.author_id as stu_id, ans_rej.ans_status, ans_rej.rejected_reason as ans_rejected_reason, ans_rej.rejected_time as ans_rejected_time, ' . 'ans_rej.ans_attachment as attach, ans_rej.answer_content as answer_content, ans_rej.post_date as ans_post_date, ' . 'mtuser3.first_name as professor_first_name, mtuser3.last_name as professor_last_name, ' . 'mtuser3.avatar as professor_avatar, mtuser2.avatar as stu_avatar, mtbranch.branch_name as professor_branch_name FROM mtsoc_question ques LEFT JOIN mtsoc_answer_reject ans_rej ON ques.id = ans_rej.question_id LEFT JOIN mtsoc_users mtuser2 ON mtuser2.id = ques.author_id LEFT JOIN mtsoc_auth_users mtuser3 ON mtuser3.id = ans_rej.author_id LEFT JOIN mtsoc_branch mtbranch ON mtbranch.branch_id = mtuser3.branch_id';
+		if($ques_id!='')
+			$query .= ' WHERE ques.id = '.$ques_id;
+		if($author_id!='')
+			$query .= ' WHERE ans_rej.author_id = '.$author_id;
+		$query .= ' ORDER BY ans_rej.question_id';
+		
+		$position	= strpos($query, 'WHERE');
+		if ($position !== false) {
+			$query = substr($query, 0, $position + 1) . str_replace('WHERE', 'AND', substr($query, $position + 1));
+		}
+		$result	= $db['master']->getResults($query);
+		return $result;
+	}
+	
+	public function getChatRoomList() {
+		global $db,$request;
+		
+		$query	= "SELECT cc.id, cc.name, cc.type, cc.status, CONCAT(mu.first_name, ' ', mu.last_name) as full_name FROM cometchat_chatrooms cc LEFT JOIN mtsoc_users mu ON mu.id = cc.createdby ORDER BY cc.id DESC";
+		return $db['master']->getResults($query);
+	}
+	
+	public function chatroom_action($chatroom_id, $action) {
+		global $db,$request;
+		
+		if($action == 'approve')
+			$update = 'APPROVED';
+		else if($action == 'reject')
+			$update = 'REJECTED';
+		else
+			return false;
+		
+		$update_query	= "UPDATE cometchat_chatrooms SET status = '". $update ."' WHERE id = $chatroom_id";
+		return $db['master']->query($update_query);
+	}
+	
+	/**
+	 * Description:
+	 * get all similar question and respective answer based on MATCH case
+	 *
+	 * Parameters:
+	 * ques_id   : Question ID
+	 *
+	 * Return Value:
+	 * array/boolean : true if data found and returns all similar question and respective answer in array
+	 *     : false if no records
+	 * 
+	*/
+
+	public function get_similar_qa($ques_id) {
+
+		global $db,$request;
+
+		$query				= "SELECT question_title, question_content FROM mtsoc_question WHERE id = '". $ques_id ."'";
+		$result				= $db['master']->getOneRow($query);
+		$question_title		= $result['question_title'];
+		$question_content	= $result['question_content'];
+
+
+
+$query = "SELECT
+  ques.id,ques.question_title,ques.question_content,ques.author_id        AS stud_id,ques.post_date        AS question_post_date,ques.ques_attachment,ques.ques_status,ans.id                AS ans_id,ans.answer_content,ans.ans_attachment,ans.post_date         AS ans_post_date,CONCAT(mau.first_name, ' ', mau.last_name) AS faculty_name,mau.avatar            AS faculty_avatar,mtb.branch_name
+FROM mtsoc_question AS ques
+  LEFT JOIN mtsoc_answer AS ans  ON ans.question_id = ques.id
+  LEFT JOIN mtsoc_auth_users AS mau ON mau.id = ans.author_id
+  LEFT JOIN mtsoc_branch AS mtb ON mtb.branch_id = mau.branch_id
+WHERE (MATCH(`ques`.`question_title`, `ques`.`question_content`)AGAINST ('". $question_title ."' IN BOOLEAN MODE) OR MATCH (`ques`.`question_title`, `ques`.`question_content`) AGAINST ('". $question_content ."' IN BOOLEAN MODE))
+    AND ques.ques_status = 'published'";
+	
+		$result	= $db['master']->getResults($query);
+		if ($result && count($result) > 0)
+			return $result;
+		else
+			return false;
+	}
+
+	/**
+	 * Description:
+	 * Fucntion to approve similar q&a
+	 *
+	 * Parameters:
+	 * question_id : Question ID
+	 * answer_id : Answer ID
+	 *
+	 * Return Value:
+	 * id   : last insert id   
+	 * 
+	*/
+	
+	public function approve_similar_qa($answer_id, $question_id) {
+		global $db,$request;
+  
+		$query	= "SELECT * FROM mtsoc_answer WHERE id = '". $answer_id ."'";
+		$result	= $db['master']->getOneRow($query);
+		//$ans_data	= htmlspecialchars($result['answer_content'], ENT_QUOTES);
+		$ans_data	= str_replace("'","\'",$result['answer_content']);
+		$insert_query = "INSERT INTO mtsoc_answer (question_id, answer_content, author_id, post_date, post_modified, ans_attachment, post_mime_type) VALUE ('". $question_id ."', '". $ans_data ."', '". $result['author_id'] ."', '". date('Y-m-d H:i:s') ."', '". $result['post_modified'] ."', '". $result['ans_attachment'] ."', '". $result['post_mime_type'] ."')";
+		$insert_result	= $db['master']->query($insert_query);
+		$last_id		= $db['master']->getLastID($insert_query);
+
+		$update_query	= "UPDATE mtsoc_question SET ques_status = 'published', assigned_to = '". $result['author_id'] ."' WHERE id = '". $question_id ."'";
+		$update_result	= $db['master']->query($update_query);
+		return $last_id;
+	}
+
+	/**
+	 * Description:
+	 * get all posted question by ques id or status
+	 *
+	 * Parameters:
+	 * question_id		: Question ID
+	 * status			: Question status
+	 *
+	 * Return Value:
+	 * array/boolean	: true if data found and returns all posted question based on parameter
+	 *					: false if no records
+	 * 
+	*/
+
+	public function post_details_by_qid($question_id, $status = '') {
+		global $db,$request;
+		
+		$query = "SELECT * FROM mtsoc_question WHERE id = '". $question_id ."'";
+		if(!empty($status))
+			$query.=" AND ques_status = '". $status ."'";
+		$result = $db['master']->getOneRow($query);
+		if ($result && count($result) > 0)
+			return (object)$result;
+		else
+			return false;
+	}
+
+	/**
+	 * Description:
+	 * get rejected answer by answer id
+	 *
+	 * Parameters:
+	 * answer_id		: Answer ID
+	 *
+	 * Return Value:
+	 * array/boolean	: true if data found and returns rejected answer based on parameter
+	 *					: false if no records
+	 * 
+	 */
+	public function get_rejected_answer($answer_id) {
+		global $db,$request;
+		
+		$query	= "SELECT * FROM mtsoc_answer_reject WHERE answer_id = '". $answer_id ."'";
+		$result = $db['master']->getResults($query);
+		if ($result && count($result) > 0)
+			return $result;
+		else
+			return false;
+	}
+
+	function status_change_onload( $custom_time ) {
+		global $db,$request;
+		
+		$query	= "SELECT id, assigned_time, modified_time, IFNULL(respond_in,0) as respond_in, ques_status FROM mtsoc_question WHERE (ques_status = 'assigned' OR ques_status = 'respond_in' OR ques_status = 'draft' OR ques_status = 'in_progress')";
+		$result = $db['master']->getResults($query);
+		$today	= date('Y-m-d H:i:s');
+		if(count($result) > 0) {
+			foreach( $result as $res ) {
+				$res = (object)$res;
+				if( $res->ques_status == 'respond_in' )
+					$timeout	= strtotime('+ '.$res->respond_in.' minutes', strtotime( $res->modified_time ) );
+				else
+					$timeout	= strtotime('+ '.$custom_time.' minutes', strtotime( $res->assigned_time ) );
+				
+				if( strtotime($today) > $timeout ) {
+					$update_query	= "UPDATE mtsoc_question SET assigned_time = '0000-00-00 00:00:00', modified_time = '0000-00-00 00:00:00', assigned_to = '0', ques_status = '', respond_in = '' WHERE id = '". $res->id ."'";
+					$update_result	= $db['master']->query($update_query);
+					return $db['master']->affectedRows();
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Description:
+	 * validate the Bean Object depends upon the Validation Rules defined.
+	 *
+	 * Parameters:
+	 * Object $bean_obj					: user bean class object.
+	 * array $rules						: Array of validation rules intialize in constructor.
+	 * Return Value:
+	 * boolean true/array $error_arr	: true if the validation is successful.
+	 * 									: $error_arr if the validation is not successful.
+	 */
+	function validateQuery($beanObj, $rules) {
+		$queryvalidator = QueryValidator::getValidatorinstance ();
+		$queryvalidator->addSource ( $beanObj->getData () );
+		$queryvalidator->addRules ( $rules );
+		$queryvalidator->validate ();
+		if ($queryvalidator->isError ()) {
+			$queryvalidator->resetRules ();
+			$error_arr = $queryvalidator->getError ();
+			$queryvalidator->resetSource ();
+			return $error_arr;
+		} else {
+			$queryvalidator->resetRules ();
+			return true;
+		}
+	}
+	
+	public function check_notifications($type = false, $user = false) {
+		global $db, $request;
+		if($type == 'MODERATOR') {
+			$query	= "select sum(case when ques_status = '' then 1 else 0 end) as new_ques, sum(case when ques_status = 'pending' then 1 else 0 end) as new_ans from mtsoc_question";
+		} elseif($type == 'SME') {
+			if($user) {
+				$query	= "select sum(case when ques_status = 'assigned' and assigned_to = ".$user." then 1 else 0 end) as new_ques from mtsoc_question";
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+		$result = $db['master']->getOneRow($query);
+		return $result;
+	}
+}
+?>

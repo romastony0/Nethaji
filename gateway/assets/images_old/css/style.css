@@ -1,0 +1,329 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;500;600;700;900&family=Oleo+Script&display=swap')
+
+
+body{font-family: 'Montserrat', sans-serif !important;}
+
+/******Nav Bar****/
+.navbar-dark .navbar-nav .nav-link {color: rgba(255, 255, 255, 1);cursor:pointer;}
+.navbar-dark .navbar-nav .show > .nav-link, .navbar-dark .navbar-nav .nav-link.active{color:#ff0000 !important}
+
+.modal-content {background-color:#ffcdeb}
+.modal-content a{color:#000;}
+.modal-content a:hover{text-decoration:none;}
+
+.otp .form-control {
+    width: 20%;    
+    margin: 0px auto;
+	padding:15px 10px;
+    text-align: center;
+	border-bottom: 1px solid #1f80e0;
+}
+.otp .resend{font-weight:600; cursor:pointer;}
+
+.hero-banner{
+	background: url(../images/home/hero-bg.jpg);
+	background-size: cover;
+	min-height:300px;
+	}
+.astro-circle{-webkit-animation: spin 20s linear infinite; /* Safari */
+  animation: spin 20s linear infinite;}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spl-text{font-family: 'Oleo Script', cursive;}
+
+
+#info .card{max-height:300px;margin-bottom:25px;}
+#info .card-body{height:250px;overflow:auto;}
+
+.card-header{
+	border-radius:10px 10px 0px 0px !important;
+	padding:10px;	
+}
+.cardinfo{
+	display: flex!important;
+	align-items: center!important;
+	justify-content: center!important;
+	color:#fff;
+	background:#58bffd;
+	padding:10px 20px;
+	border: 2px solid #fff;
+	border-radius:10px;
+	margin:10px 10px;
+	position:relative;
+	
+}
+
+
+.thead, tbody, tfoot, tr, td, th{
+	background:#FDD8F1;
+	font-size:.9em;
+	cursor:pointer;
+	
+}
+#panchang{cursor:pointer;}
+
+.hover-info{
+	display:block;
+	position:absolute;
+	border-radius:0px 0px 8px 8px;
+	padding:5px;
+	width:100%;
+	top:40px;
+	left:0px;
+	background: rgb(98,30,185);
+background: linear-gradient(90deg, rgba(98,30,185,1) 0%, rgba(255,102,193,1) 100%);
+}
+.hover-info .list-group{flex-direction:row !important;overflow:auto;}
+
+.hover-info .list-group-item{font-size:.8em !important;border:none;color:#fff;background:transparent !important;}
+/******Zodiac******/
+
+#Zodiac .slider img{margin:0 auto; width:80%; transition: transform .2s; /* Animation */}
+#Zodiac .slider img:hover{opacity:.7}
+
+
+
+/*********Horoscope page*********/
+
+
+#horoscope .card{
+	background-color: #eaeaea;
+    padding: 55px 0 20px 0;
+    border-radius: 5px;
+    border-bottom: 5px solid #E5E5E5;
+	text-align:center;
+}
+
+#horoscope .btn-light{background:#fff;border-radius:8px;color:#4C08A4}
+
+
+#horoscope-inner .card{
+	background:#fff;
+	color:#3C3C3C;
+	border-radius:12px;
+	cursor:pointer;
+}
+
+#horoscope-inner .card .active{background:#ca85ff;
+	color:#fff;border-radius:12px;}
+	
+	#horoscope-inner .card:hover{background:#762ed1;
+	color:#fff;border-radius:12px;border:none;}
+
+
+#horoscope-inner .btn-light{background:#fff;border-radius:12px;color:#4C08A4; font-size:18px; color:#000; font-weight:600; padding:15px 20px}
+
+/***********Talk astro ********/
+
+#talk-astro .card .card-top{background:#BA96D6; border-radius:8px;padding:10px 15px;}
+
+#talk-astro .card .card-top .avatar img {
+    border-radius: 100px;
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    float: left;
+}
+.name-content {
+    float: left;
+    width: calc(100% - 80px);
+    padding-left: 15px;
+    text-align: left;
+    padding-top: 10px;
+}
+
+#talk-astro .card-body ul{padding-left:0px;list-style:none;}
+#talk-astro .card-body ul i{padding-right:5px; width:25px;}
+
+/********************Question***********/
+
+
+
+
+
+.accordion {
+  width: 100%;
+  height: 350px;
+  overflow: hidden;
+  margin: 0px auto;
+}
+
+.accordion ul {
+  width: 100%;
+  display: table;
+  table-layout: fixed;
+  margin: 0;
+  padding: 0;
+}
+
+.accordion ul li {
+  display: table-cell;
+  vertical-align: bottom;
+  position: relative;
+  width: 16.666%;
+  height: 350px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  transition: all 500ms ease-in-out;
+}
+
+.accordion ul li div {
+  display: block;
+  overflow: hidden;
+  width: 100%;
+}
+
+.accordion ul li div a {
+  display: block;
+  height: 350px;
+  width: 100%;
+  position: relative;
+  z-index: 3;
+  vertical-align: bottom;
+  padding: 15px 20px;
+  box-sizing: border-box;
+  color: #fff;
+  text-shadow: 1px 1px 2px #000;
+  /*filter: invert(100%);*/
+  text-decoration: none;
+  font-family: Open Sans, sans-serif;
+  transition: all 300ms ease-in-out;
+}
+
+.accordion ul li div a * {
+  opacity: 0;
+  margin: 0;
+  width: 100%;
+  text-overflow: ellipsis;
+  position: relative;
+  z-index: 5;
+  white-space: nowrap;
+  overflow: hidden;
+  -webkit-transform: translateX(-20px);
+  transform: translateX(-20px);
+  -webkit-transition: all 400ms ease-in-out;
+  transition: all 400ms ease-in-out;
+}
+.accordion ul li div a h2 {
+  font-family: Montserrat, sans-serif;
+  text-overflow: clip;
+  font-size: 32px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+  top: 160px;
+}
+
+.accordion ul li div a p {
+  top: 160px;
+  font-size: 18px;
+  padding-left: 1em;
+}
+
+.accordion ul li:nth-child(1) { 
+  background-image: url("../images/question/job.jpg"); 
+  background-position: 50% 30%;
+  border-radius:20px 0px 0px 20px;
+}
+
+.accordion ul li:nth-child(2) { 
+  background-image: url("../images/question/business.jpg"); 
+ background-position: 70% 0%;
+  
+}
+
+.accordion ul li:nth-child(3) { 
+  background-image: url("../images/question/finance.jpg"); 
+background-position: 50% 50%;
+}
+
+.accordion ul li:nth-child(4) { 
+  background-image: url("../images/question/love.jpg"); 
+  background-position: 30% 40%;
+}
+
+.accordion ul li:nth-child(5) { 
+  background-image: url("../images/question/marriage.jpg"); 
+  background-position: 60% 64%;
+}
+
+.accordion ul li:nth-child(6) { 
+  background-image: url("../images/question/health.jpg"); 
+  background-position: 70% 25%;
+   border-radius:0px 20px 20px 0px;
+}
+
+
+.accordion ul li { background-size: cover; }
+.accordion ul:hover li { width: 10%; }
+.accordion ul:hover li:hover { width: 90%; }
+
+/*.accordion ul:hover li:hover a { background: rgba(0, 0, 0, 0.4); }*/
+
+.accordion ul:hover li:hover a * {
+  opacity: 1;
+  -webkit-transform: translateX(0);
+  transform: translateX(0);
+}
+ @media screen and (max-width: 680px) {
+  
+  body { margin: 0; }
+  .accordion { height: auto; }
+
+  .accordion ul li,
+  .accordion ul li:hover,
+  .accordion ul:hover li,
+  .accordion ul:hover li:hover {
+    position: relative;
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+    -webkit-transition: none;
+    transition: none;
+  }
+  .accordion ul li div a * {
+    opacity: 1;
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+  }
+}
+
+/*Calender*/
+.box {
+    display: block;
+    max-width: 360px;  
+    font-weight: 400;
+	margin:0 auto;
+    margin-bottom: 10px;
+    padding: .5em 1em;
+	font-size:12px;
+    background-color: #fafafa;
+    border: 1px solid #d8d8d8;
+	text-align:center;
+    /*box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+    -o-box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+    -moz-box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+    -webkit-box-shadow: 0 4px 12px rgba(0, 0, 0, .25);*/
+    overflow: hidden;
+}
+
+.box .label {
+    margin: .4em;
+    white-space: normal;
+    word-break: break-word;
+}
+
+/*****Footer******/
+
+.footer{background:#4C08A4;padding:10px 0px; color:#fff;}
+.footer .social a{text-decoration:none; color:#fff; font-size:1.5em;}
+.footer .social a:hover{ color:#fff;}

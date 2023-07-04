@@ -1,0 +1,622 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;500;600;700;900&family=Oleo+Script&display=swap')
+
+body{font-family: 'Montserrat', sans-serif !important;}
+
+/******Nav Bar****/
+.navbar-dark .navbar-nav .nav-link {color: rgba(255, 255, 255, 1);cursor:pointer;}
+.navbar-dark .navbar-nav .show > .nav-link, .navbar-dark .navbar-nav .nav-link.active{color:#ff0000 !important}
+
+.modal-content {background-color:#ffcdeb}
+/*.modal-content a{color:#000;} */
+.modal-content a:hover{text-decoration:none;}
+
+.otp .form-control {
+    width: 20%;    
+    margin: 0px auto;
+	padding:15px 10px;
+    text-align: center;
+	border-bottom: 1px solid #1f80e0;
+}
+.otp .resend{font-weight:600; cursor:pointer;}
+
+.hero-banner{
+	background: url(../images/home/hero-bg.jpg);
+	background-size: cover;
+	min-height:275px;
+	}
+.astro-circle{-webkit-animation: spin 20s linear infinite; /* Safari */
+  animation: spin 20s linear infinite;}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spl-text{font-family: 'Oleo Script', cursive;}
+
+
+#info .card{max-height:300px;margin-bottom:25px;}
+#info .card-body{height:250px;overflow:auto;}
+
+.card-header{
+	border-radius:10px 10px 0px 0px !important;
+	padding:10px;	
+}
+.cardinfo{
+	display: flex!important;
+	align-items: center!important;
+	justify-content: center!important;
+	color:#fff;
+	background:#58bffd;
+	padding:10px 20px;
+	border: 2px solid #fff;
+	border-radius:10px;
+	margin:10px 10px;
+	position:relative;
+	
+}
+
+
+.thead, tbody, tfoot, tr, td, th{
+	background:#FDD8F1;
+	font-size:.9em;
+	cursor:pointer;
+	
+}
+#panchang{cursor:pointer;}
+
+.hover-info{
+	display:block;
+	position:absolute;
+	border-radius:0px 0px 8px 8px;
+	padding:5px;
+	width:100%;
+	top:40px;
+	left:0px;
+	background: rgb(98,30,185);
+background: linear-gradient(90deg, rgba(98,30,185,1) 0%, rgba(255,102,193,1) 100%);
+}
+.hover-info .list-group{flex-direction:row !important;overflow:auto;}
+
+.hover-info .list-group-item{font-size:.8em !important;border:none;color:#fff;background:transparent !important;}
+/******Zodiac******/
+
+#Zodiac .slider img{margin:0 auto; width:80%; transition: transform .2s; /* Animation */}
+#Zodiac .slider img:hover{opacity:.7}
+
+
+
+/*********Horoscope page*********/
+
+
+#horoscope .card{	
+	border-radius: 8px;
+    /*border-bottom: 5px solid #E5E5E5;*/
+}
+
+#horoscope .card:hover{background:#c884fb;border-radius: 8px;color:#fff;cursor:pointer;}
+#payment_option .card:hover{background:#c884fb;border-radius: 8px;color:#fff;cursor:pointer;}
+#payment_option .card.active{background:#c884fb;border-radius: 8px;color:#fff;cursor:pointer;}
+#horoscope .card.active{background:#c884fb;border-radius: 8px;color:#fff;cursor:pointer;}
+#horoscope .moretext {display: none;}
+#horoscope .btn-light{background:#fff;border-radius:8px;color:#4C08A4}
+
+#horoscope .horo-icon img{width:25%;}
+
+#horoscope .horo-icon a{text-decoration:none; color:inherit;}
+#horoscope-inner .card{
+	background:#fff;
+	color:#3C3C3C;
+	border-radius:12px;
+	cursor:pointer;
+}
+
+#horoscope-inner .card .active{background:#ca85ff;
+	color:#fff;border-radius:12px;}
+	
+	#horoscope-inner .card:hover{background:#762ed1;
+	color:#fff;border-radius:12px;border:none;}
+
+
+#horoscope-inner .btn-light{background:#fff;border-radius:12px;color:#4C08A4; font-size:18px; color:#000; font-weight:600; padding:15px 20px}
+
+
+#horoscope .weekly {
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+}
+
+.read_more_landing{
+  color:black;
+  text-decoration:none;
+}
+
+#horoscope .weekly li{border-radius:50%;width:40px;height:40px;  display:flex; align-items:center; justify-content:center; border:1px solid #c884fb;margin:0px 5px}
+
+#horoscope .weekly li a {
+    position: relative;
+    display: block;
+    color: #0d6efd;	
+	font-size:12px;
+	 display:flex; align-items:center; justify-content:center; 
+    text-decoration: none; 
+   
+}
+#horoscope .weekly li :hover{background:#c884fb;border-radius:50%; color:#fff; width:40px;height:40px;}
+#horoscope .weekly li .active{background:#c884fb;border-radius:50%; color:#fff; width:40px;height:40px;}
+
+.bg6{background-color:#f1f8db}
+.bg4{background-color:#f3ecdc}
+.bg1{background-color:#f7daee}
+.bg2{background-color:#d6e7ed}
+.bg5{background-color:#d7ede7}
+.bg3{background-color:#f6f2d2}
+.bg7{background-color:#d7ede7}
+
+.calender-bg{background:#c884fb; padding:10px 25px; border-radius:8px;}
+
+#country_code{position:relative;}
+#country_code span {position:absolute; left:15px; top:38px; border-right:1px solid #ccc; padding:0px 8px;}
+
+/* #plan_payment{display:none;} */
+#plan_payment .paln_info{
+	
+	border-radius:10px; 
+	padding:20px 20px;
+	background: rgb(98,30,185);
+	background: linear-gradient(90deg, rgba(98,30,185,1) 0%, rgba(255,102,193,1) 100%);
+	}
+
+.payment-button{background:#fff; border-radius:8px; padding:10px 20px;}
+.payment-button img{width:60%;}
+
+/***********Talk astro ********/
+
+#talk-astro .card .card-top{background:#BA96D6; border-radius:8px;padding:10px 15px;}
+
+#talk-astro .card .card-top .avatar img {
+    border-radius: 100px;
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    float: left;
+}
+.name-content {
+    float: left;
+    width: calc(100% - 70px);
+    padding-left: 15px;
+    text-align: left;
+    padding-top: 10px;
+}
+
+#talk-astro .card-body ul{padding-left:0px;list-style:none;}
+#talk-astro .card-body ul i{padding-right:5px; width:25px;}
+
+
+.astro-info{background-color:#4C08A4;padding:10px 10px; color:#fff;}
+
+#astroAppoinment .avatar img {
+    border-radius: 100px;
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    
+}
+.astro-info-list ul{list-style-type:none; margin:0px; padding:0px}
+
+.astro-info-list ul li{margin:10px 0px}
+
+#astroAppoinment-confirm, #astroAppoinment-thankyou {display:none;}
+
+.lang-group .btn{margin: 0.25rem 0.125rem}
+
+.nav-pills .nav-link {
+    background: none;
+    border: 0;
+    border-radius: 0px 0px 40px;
+}
+ .bdr{border-bottom:1px solid #ccc; margin:10px 0px; padding:5px 0px;}
+ 
+ #astro_appoinments .btn{margin:5px 10px;}
+ 
+ /*Astro profile*/ 
+  #astro-profile{ position: relative;}  
+  #astro-profile .avatar a {
+    position: absolute;
+    top: 1%;
+    margin: 0 auto;
+    right: 23%;
+    background: #fff;
+    padding: 12px;
+    border-radius: 100px;
+    box-shadow: 0px 0px 15px rgb(53 49 74 / 31%);
+}
+ #astro-profile input[type="file"] {
+    cursor: pointer;
+    display: block;
+    height: 100%;
+    left: 0;
+    opacity: 0 !important;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+/*--------------------------------------------------------------
+# Astro appoinment modal
+--------------------------------------------------------------*/
+#astroAppoinment hr{margin:0px !important}
+.astro_appoinment_date .datebox{border:1px solid #ccc;border-radius:4px; text-align:center; margin:10px;cursor:pointer;}
+.astro_appoinment_date .datebox:hover span{background:#4C08A4; color:#fff;}
+.astro_appoinment_date .datebox .active span{background:#4C08A4; color:#fff;}
+.astro_appoinment_date span {
+  font-weight: 400;
+  color: #3C4048;
+  font-size: 1rem;
+  padding: 5px 10px;
+}
+.astro_appoinment_date h4{font-weight: 800; margin:5px 0px;}
+
+.btn-light {
+    color: #000;
+    background-color: #f8f9fa;
+    border-color: #cbcdcf;
+}
+
+.btn-light:hover{border-color: #666;}
+
+/********************Question***********/
+
+.select-catagory{background:#fff;border:1px solid #ccc; border-radius:8px;}
+
+.catagory-items{display:none;}
+
+.accordion {
+  width: 100%;
+  height: 350px;
+  overflow: hidden;
+  margin: 0px auto;
+}
+
+.accordion ul {
+  width: 100%;
+  display: table;
+  table-layout: fixed;
+  margin: 0;
+  padding: 0;
+}
+
+.accordion ul li {
+  display: table-cell;
+  vertical-align: bottom;
+  position: relative;
+  width: 16.666%;
+  height: 350px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  transition: all 500ms ease-in-out;
+}
+
+.accordion ul li div {
+  display: block;
+  overflow: hidden;
+  width: 100%;
+}
+
+.accordion ul li div a {
+  display: block;
+  height: 350px;
+  width: 100%;
+  position: relative;
+  z-index: 3;
+  vertical-align: bottom;
+  padding: 15px 20px;
+  box-sizing: border-box;
+  color: #fff;
+  text-shadow: 1px 1px 2px #000;
+  /*filter: invert(100%);*/
+  text-decoration: none;
+  font-family: Open Sans, sans-serif;
+  transition: all 300ms ease-in-out;
+}
+
+.accordion ul li div a * {
+  opacity: 0;
+  margin: 0;
+  width: 100%;
+  text-overflow: ellipsis;
+  position: relative;
+  z-index: 5;
+  white-space: nowrap;
+  overflow: hidden;
+  -webkit-transform: translateX(-20px);
+  transform: translateX(-20px);
+  -webkit-transition: all 400ms ease-in-out;
+  transition: all 400ms ease-in-out;
+}
+.accordion ul li div a h2 {
+  font-family: Montserrat, sans-serif;
+  text-overflow: clip;
+  font-size: 32px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+  top: 160px;
+}
+
+.accordion ul li div a p {
+  top: 160px;
+  font-size: 18px;
+  padding-left: 1em;
+}
+
+.accordion ul li:nth-child(1) { 
+  background-image: url("../images/question/job.jpg"); 
+  background-position: 50% 30%;
+  border-radius:20px 0px 0px 20px;
+}
+
+.accordion ul li:nth-child(2) { 
+  background-image: url("../images/question/business.jpg"); 
+ background-position: 70% 0%;
+  
+}
+
+.accordion ul li:nth-child(3) { 
+  background-image: url("../images/question/finance.jpg"); 
+background-position: 50% 50%;
+}
+
+.accordion ul li:nth-child(4) { 
+  background-image: url("../images/question/love.jpg"); 
+  background-position: 30% 40%;
+}
+
+.accordion ul li:nth-child(5) { 
+  background-image: url("../images/question/marriage.jpg"); 
+  background-position: 60% 64%;
+}
+
+.accordion ul li:nth-child(6) { 
+  background-image: url("../images/question/health.jpg"); 
+  background-position: 70% 25%;
+   border-radius:0px 20px 20px 0px;
+}
+
+
+.accordion ul li { background-size: cover; }
+.accordion ul:hover li { width: 10%; }
+.accordion ul:hover li:hover { width: 90%; }
+
+/*.accordion ul:hover li:hover a { background: rgba(0, 0, 0, 0.4); }*/
+
+.accordion ul:hover li:hover a * {
+  opacity: 1;
+  -webkit-transform: translateX(0);
+  transform: translateX(0);
+}
+ @media screen and (max-width: 680px) {
+  
+  body { margin: 0; }
+  .accordion { height: auto; }
+
+  .accordion ul li,
+  .accordion ul li:hover,
+  .accordion ul:hover li,
+  .accordion ul:hover li:hover {
+    position: relative;
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+    -webkit-transition: none;
+    transition: none;
+  }
+  .accordion ul li div a * {
+    opacity: 1;
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+  }
+}
+
+/*Calender*/
+.box {
+    display: block;
+    max-width: 360px;  
+    font-weight: 400;
+	margin:0 auto;
+    margin-bottom: 10px;
+    padding: .5em 1em;
+	font-size:12px;
+    background-color: #fafafa;
+    border: 1px solid #d8d8d8;
+	text-align:center;
+    /*box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+    -o-box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+    -moz-box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+    -webkit-box-shadow: 0 4px 12px rgba(0, 0, 0, .25);*/
+    overflow: hidden;
+}
+
+.box .label {
+    margin: .4em;
+    white-space: normal;
+    word-break: break-word;
+}
+
+
+/************Tarot********/
+#tarot a{text-decoration:none;color:inherit;}
+
+#tarot .card-block .btn-outline-primary {
+  width: 100%;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+}
+
+#tarot .card {
+  margin: 10px 0;
+
+}
+
+/* Flip Cards CSS */
+#tarot .card-container {
+  perspective: 700px;
+}
+#tarot .card-flip {
+  position: relative;
+  width: 100%;
+  transform-style: preserve-3d;
+  height: auto;
+  transition: all 0.5s ease-out;
+  background: transparent;
+  border: none;
+}
+
+#tarot .card-flip div {
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  height: 100%;
+  width: 100%;
+  border: none;
+}
+
+#tarot .card-flip .front {
+  position: relative;
+  z-index: 1;
+}
+
+#tarot .card-flip .back {
+  position: relative;
+  z-index: 0;
+  transform: rotateY(-180deg);
+}
+
+#tarot .card-container:hover .card-flip {
+  transform: rotateY(180deg);
+}
+
+
+/******Profile*******/
+.profile-icon{margin-left:28%;}
+
+.link-dark{color:#fff;}
+
+.profile-banner{
+	background: url(../images/home/hero-bg.jpg);
+	background-size: cover;
+	min-height:300px;
+	position:relative;
+	}
+	
+
+#profile .card{border-radius:16px; border:none; position:absolute; margin:2rem auto;padding:0px;}
+#profile .card .avatar{position:relative;}
+#profile .card .avatar-img{width:150px;height:150px;border-radius:50%; }
+#profile .card .avatar a {
+    position: absolute;
+    top: 0%;
+    margin: 0 auto;   
+    right: 35%;
+    background: #fff;
+    padding: 12px;
+    border-radius: 100px;
+    box-shadow: 0px 0px 15px rgb(53 49 74 / 31%);
+}
+.dropdown-menu[data-bs-popper] {
+    top: 100%;
+    left: -55%;
+    margin-top: 0.125rem;
+	
+}
+.dropdown-item {color:#0d99ff; padding:8px 15px}
+
+#profile input[type="file"] {
+    cursor: pointer;
+    display: block;
+    height: 100%;
+    left: 0;
+    opacity: 0 !important;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+
+#profile .card .card-body{padding:2rem;}
+
+#profile .card .header{background:#4C08A4;color:#fff;padding:10px 20px;margin-top:2rem; font-size:16px;font-weight:bold;}
+#profile .card .header a{color:#fff;text-decoration:none;}
+#profile .card .header a:hover{color:#d6bbf9;text-decoration:underline}
+#profile .card .header .highlight{background:#fff;display:inline-block;padding:8px 16px;color:#4C08A4; border-radius:30px;}
+
+
+
+#subscription .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 0.25rem;
+	margin-bottom:0px;
+}
+
+#subscription .card .card-body{padding:1rem;}
+#subscription .moretext {display: none;}
+
+
+#choose_plan .thead, tbody, tfoot, tr, td, th{
+	background:#fff;
+	font-size:16px;
+	cursor:pointer;
+	
+}
+
+
+#premium_plan select.form-select{border:none; width:30%;}
+.pass-success{display:none;}
+
+/******Media Query Css******/
+
+@media only screen and (max-width: 768px){
+	
+	.mgt{margin-top:20px;}
+	
+	/* .astro-circle{-webkit-animation: spin 0s linear infinite; /* Safari */
+  /*animation: spin 0s linear infinite;} */
+  
+	.navbar-brand{margin-right:0rem;}
+	.dropdown-menu[data-bs-popper] {
+    top: 100%;
+    margin-left: -100px;
+    margin-top: 0.125rem;
+}
+
+.profile-icon{margin-left:0px;}
+
+.hero-banner{
+	
+	min-height:auto;
+	}
+	
+}
+
+@media only screen and (min-width: 1200px) {
+	.profile-icon{margin-left:29%;}
+}
+/*****Footer******/
+
+.footer{background:#4C08A4;padding:10px 0px; color:#fff;}
+.footer .social a{text-decoration:none; color:#fff; font-size:1.5em;}
+.footer .social a:hover{ color:#fff;}
